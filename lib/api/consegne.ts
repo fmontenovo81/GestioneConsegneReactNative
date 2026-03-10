@@ -98,6 +98,18 @@ export function useConsegnaDetail(id: number | undefined) {
       const res = await apiFetch(`/consegne/${id}`);
       if (!res.ok) throw new Error('Errore fetch dettaglio');
       const data = await res.json();
+
+      // Se c'è firma ma ddtFirmato non ancora generato → genera al volo
+      if (data.firmaDigitale && !data.ddtFirmato && data.ddtPdf) {
+        try {
+          const resFirmato = await apiFetch(`/consegne/${id}/ddt-firmato`);
+          if (resFirmato.ok) {
+            const firmato = await resFirmato.json();
+            data.ddtFirmato = firmato.ddtFirmato;
+          }
+        } catch {}
+      }
+
       // Salva i campi binari in SQLite per accesso offline
       const esistente = getConsegnaById(id);
       if (esistente?.localId) {

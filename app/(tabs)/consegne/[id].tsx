@@ -8,7 +8,8 @@ import {
   ChevronLeft, FileText, Pen, Banknote, ClipboardList,
   CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail,
 } from 'lucide-react-native';
-import { useConsegne, useConsegnaDetail, useUpdateConsegna } from '../../../lib/api/consegne';
+import { useConsegne, useConsegnaDetail, useUpdateConsegna, consegneKeys } from '../../../lib/api/consegne';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../../hooks/useAuth';
 import { getConsegnaById } from '../../../lib/db/sqlite';
 import { VisualizzaDDT } from '../../../components/consegne/VisualizzaDDT';
@@ -30,6 +31,7 @@ export default function DettaglioConsegnaScreen() {
   const { id }   = useLocalSearchParams<{ id: string }>();
   const router   = useRouter();
   const { idTrasportatore } = useAuth();
+  const qc = useQueryClient();
   const [tab, setTab]           = useState<Tab>('documenti');
   const [emailInput, setEmail]  = useState('');
 
@@ -40,6 +42,7 @@ export default function DettaglioConsegnaScreen() {
   const { data: dettaglio } = useConsegnaDetail(serverId);
   // Merge: i campi binari vengono dalla GET dettaglio (esclusi dalla lista per payload)
   const ddtPdf        = dettaglio?.ddtPdf        ?? consegna?.ddtPdf;
+  const ddtFirmato    = dettaglio?.ddtFirmato    ?? consegna?.ddtFirmato;
   const firmaDigitale = dettaglio?.firmaDigitale ?? consegna?.firmaDigitale;
   const { mutate: aggiorna, isPending } = useUpdateConsegna();
 
@@ -61,7 +64,11 @@ export default function DettaglioConsegnaScreen() {
       firmaDigitale:   firma,
       noteDdt:         note || undefined,
     }, {
-      onSuccess: () => setTab('pagamento'),
+      onSuccess: () => {
+        setTab('pagamento');
+        // Re-fetch dettaglio per generare ddtFirmato con la nuova firma
+        if (consegna.id) qc.invalidateQueries({ queryKey: consegneKeys.detail(consegna.id) });
+      },
     });
   };
 
@@ -152,6 +159,7 @@ export default function DettaglioConsegnaScreen() {
             )}
             <VisualizzaDDT
               ddtPdf={ddtPdf}
+              ddtFirmato={ddtFirmato}
               firmaDigitale={firmaDigitale}
               noteDdt={consegna.noteDdt}
             />
