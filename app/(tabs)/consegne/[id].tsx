@@ -208,9 +208,16 @@ export default function DettaglioConsegnaScreen() {
             <PagamentiConsegna consegnaServerId={consegna.id} />
 
             {/* Email */}
-            {!consegna.emailCliente && (
+            {consegna.emailCliente ? (
+              <View style={s.emailInfoRow}>
+                <Mail size={15} color="#2563eb" />
+                <Text style={s.emailInfoText}>
+                  Documenti inviati a <Text style={s.emailInfoBold}>{consegna.emailCliente}</Text>
+                </Text>
+              </View>
+            ) : (
               <View>
-                <Text style={s.label}>Email cliente (opzionale)</Text>
+                <Text style={s.label}>Email cliente (opzionale — per invio documenti)</Text>
                 <View style={s.emailRow}>
                   <Mail size={16} color="#9ca3af" />
                   <TextInput
@@ -302,6 +309,9 @@ const s = StyleSheet.create({
   label:          { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 8 },
   emailRow:       { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 4 },
   emailInput:     { flex: 1, fontSize: 15, color: '#111827', paddingVertical: 12 },
+  emailInfoRow:   { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#eff6ff', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: '#bfdbfe' },
+  emailInfoText:  { flex: 1, fontSize: 13, color: '#1e40af' },
+  emailInfoBold:  { fontWeight: '700' },
   bottomBar:      { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f1f5f9' },
   confirmBtn:     { backgroundColor: '#059669', borderRadius: 16, paddingVertical: 17, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   confirmBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },

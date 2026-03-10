@@ -6,7 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { format, addDays } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '../../../hooks/useAuth';
 import { useConsegne } from '../../../lib/api/consegne';
 import { ConsegnaCard } from '../../../components/consegne/ConsegnaCard';
@@ -26,6 +26,11 @@ export default function ConsegneScreen() {
     const dataC = format(new Date(c.dataProgrammata), 'yyyy-MM-dd');
     return dataC === filtroData && (mostraConsegnate || c.statoConsegna !== 'consegnata');
   });
+
+  const nConsegnate = consegne.filter(c => {
+    const dataC = format(new Date(c.dataProgrammata), 'yyyy-MM-dd');
+    return dataC === filtroData && c.statoConsegna === 'consegnata';
+  }).length;
 
   const primoNome = utente?.nome?.split(' ')[0] ?? '';
   const oggiLabel = format(new Date(), "EEEE d MMMM", { locale: it });
@@ -54,6 +59,22 @@ export default function ConsegneScreen() {
           <ChevronRight size={20} color="#6b7280" />
         </TouchableOpacity>
       </View>
+
+      {/* Toggle consegnate */}
+      {nConsegnate > 0 && (
+        <TouchableOpacity style={s.toggleConsegnate} onPress={() => setMostraConsegnate(v => !v)}>
+          {mostraConsegnate
+            ? <EyeOff size={14} color="#6b7280" />
+            : <Eye size={14} color="#059669" />
+          }
+          <Text style={[s.toggleText, mostraConsegnate && s.toggleTextHide]}>
+            {mostraConsegnate
+              ? `Nascondi consegnate (${nConsegnate})`
+              : `Mostra consegnate (${nConsegnate})`
+            }
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Lista */}
       {isLoading
@@ -92,6 +113,9 @@ const s = StyleSheet.create({
   logoutText:     { fontSize: 12, color: '#6b7280', fontWeight: '600' },
   datePicker:     { backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   dateText:       { fontSize: 14, fontWeight: '600', color: '#374151', textTransform: 'capitalize' },
+  toggleConsegnate: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 16, marginHorizontal: 16, marginTop: 10, borderRadius: 20, backgroundColor: '#f0fdf4', borderWidth: 1, borderColor: '#bbf7d0', alignSelf: 'flex-start' },
+  toggleText:       { fontSize: 12, fontWeight: '600', color: '#059669' },
+  toggleTextHide:   { color: '#6b7280' },
   emptyContainer: { flex: 1, alignItems: 'center', paddingTop: 80 },
   emptyText:      { color: '#9ca3af', fontSize: 15, fontWeight: '600' },
 });
