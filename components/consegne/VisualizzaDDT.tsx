@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { FileText, Download, CheckCircle2 } from 'lucide-react-native';
@@ -24,18 +24,7 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
       await FileSystem.writeAsStringAsync(fileUri, b64, {
         encoding: 'base64',
       });
-      if (Platform.OS === 'android') {
-        // Android 7+ blocca file:// URI per app esterne — serve content:// URI
-        const contentUri = await FileSystem.getContentUriAsync(fileUri);
-        await Sharing.shareAsync(contentUri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
-      } else {
-        const disponibile = await Sharing.isAvailableAsync();
-        if (disponibile) {
-          await Sharing.shareAsync(fileUri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
-        } else {
-          Alert.alert('Errore', 'Condivisione file non disponibile su questo dispositivo');
-        }
-      }
+      await Sharing.shareAsync(fileUri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
     } catch (e: any) {
       console.error('[DDT] Errore apertura PDF:', e?.message ?? e);
       Alert.alert('Errore', 'Impossibile aprire il PDF');
