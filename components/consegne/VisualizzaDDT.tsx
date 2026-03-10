@@ -22,7 +22,7 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
         .replace(/^data:[^;]+;base64,/, '')
         .replace(/[\n\r\s]/g, '');
       await FileSystem.writeAsStringAsync(fileUri, b64, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: 'base64',
       });
       if (Platform.OS === 'android') {
         // Android 7+ blocca file:// URI per app esterne — serve content:// URI
