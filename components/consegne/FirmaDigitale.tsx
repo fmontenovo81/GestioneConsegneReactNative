@@ -77,13 +77,17 @@ export function FirmaDigitale({ firmaEsistente, noteDdt: noteDdtIniziali, onSalv
             backgroundColor="rgba(0,0,0,0)"
             style={s.pad}
             descriptionText=""
-            clearText="Cancella"
-            confirmText="Salva firma"
           />
-          <TouchableOpacity style={s.cancellaBtn} onPress={handleCancella}>
-            <RotateCcw size={16} color="#6b7280" />
-            <Text style={s.cancellaBtnText}>Cancella</Text>
-          </TouchableOpacity>
+          <View style={s.padBtns}>
+            <TouchableOpacity style={s.cancellaBtn} onPress={handleCancella}>
+              <RotateCcw size={16} color="#6b7280" />
+              <Text style={s.cancellaBtnText}>Cancella</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.salvaBtn} onPress={() => sigRef.current?.readSignature()}>
+              <Check size={16} color="#fff" />
+              <Text style={s.salvaBtnText}>Salva firma</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </ScrollView>
@@ -98,8 +102,11 @@ const s = StyleSheet.create({
   noteInput:      { borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 14, padding: 14, fontSize: 15, color: '#111827', minHeight: 80, textAlignVertical: 'top' },
   padWrapper:     { borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 16, overflow: 'hidden', backgroundColor: '#f8fafc' },
   pad:            { height: 220 },
-  cancellaBtn:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 12, borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  padBtns:        { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  cancellaBtn:    { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 14 },
   cancellaBtnText:{ fontSize: 13, color: '#6b7280', fontWeight: '600' },
+  salvaBtn:       { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 14, backgroundColor: '#2563eb' },
+  salvaBtnText:   { fontSize: 14, color: '#fff', fontWeight: '700' },
   firmaOk:        { backgroundColor: '#f0fdf4', borderRadius: 16, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#bbf7d0' },
   firmaOkText:    { fontSize: 15, fontWeight: '700', color: '#166534' },
   rifirmaBtn:     { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
