@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { FileText, Download, CheckCircle2 } from 'lucide-react-native';
@@ -16,18 +16,28 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
   const apriPdf = async (base64: string, nomeFile: string) => {
     setLoading(true);
     try {
-      const uri = FileSystem.cacheDirectory + nomeFile;
-      const b64 = base64.replace(/^data:application\/pdf;base64,/, '');
-      await FileSystem.writeAsStringAsync(uri, b64, {
+      const fileUri = `${FileSystem.cacheDirectory}${nomeFile}`;
+      // Rimuove prefisso data URI (se presente) e whitespace
+      const b64 = base64
+        .replace(/^data:[^;]+;base64,/, '')
+        .replace(/[\n\r\s]/g, '');
+      await FileSystem.writeAsStringAsync(fileUri, b64, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      const disponibile = await Sharing.isAvailableAsync();
-      if (disponibile) {
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
+      if (Platform.OS === 'android') {
+        // Android 7+ blocca file:// URI per app esterne — serve content:// URI
+        const contentUri = await FileSystem.getContentUriAsync(fileUri);
+        await Sharing.shareAsync(contentUri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
       } else {
-        Alert.alert('Errore', 'Condivisione file non disponibile su questo dispositivo');
+        const disponibile = await Sharing.isAvailableAsync();
+        if (disponibile) {
+          await Sharing.shareAsync(fileUri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
+        } else {
+          Alert.alert('Errore', 'Condivisione file non disponibile su questo dispositivo');
+        }
       }
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[DDT] Errore apertura PDF:', e?.message ?? e);
       Alert.alert('Errore', 'Impossibile aprire il PDF');
     } finally {
       setLoading(false);
