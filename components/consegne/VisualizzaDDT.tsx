@@ -176,12 +176,15 @@ for(var i=0;i<raw.length;i++)buf[i]=raw.charCodeAt(i);
 pdfjsLib.getDocument({data:buf}).promise.then(function(pdf){
   document.getElementById('msg').remove();
   var v=document.getElementById('viewer');
+  var dpr=Math.max(window.devicePixelRatio||1,3);
   for(var i=1;i<=pdf.numPages;i++){
     pdf.getPage(i).then(function(page){
       var sc=(window.innerWidth-8)/page.getViewport({scale:1}).width;
-      var vp=page.getViewport({scale:sc});
+      var vp=page.getViewport({scale:sc*dpr});
       var c=document.createElement('canvas');
       c.width=vp.width;c.height=vp.height;
+      c.style.width=((vp.width/dpr))+'px';
+      c.style.height=((vp.height/dpr))+'px';
       v.appendChild(c);
       page.render({canvasContext:c.getContext('2d'),viewport:vp});
     });

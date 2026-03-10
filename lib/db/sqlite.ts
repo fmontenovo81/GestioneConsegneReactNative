@@ -156,6 +156,24 @@ export function getPagamentiDaSincronizzare(): PagamentoLocale[] {
   return db.getAllSync('SELECT * FROM pagamenti WHERE statoSincronizzazione = 0', []).map(rowToPagamento);
 }
 
+// ─── Coda GPS ────────────────────────────────────────────────
+export function insertGps(idTrasportatore: number, lat: number, lon: number, acc?: number) {
+  db.runSync(
+    'INSERT INTO coda_gps (idTrasportatore, latitudine, longitudine, accuratezza, timestamp) VALUES (?,?,?,?,?)',
+    [idTrasportatore, lat, lon, acc ?? null, new Date().toISOString()]
+  );
+}
+
+export function getGpsCoda(): { id: number; idTrasportatore: number; latitudine: number; longitudine: number; accuratezza: number | null; timestamp: string }[] {
+  return db.getAllSync('SELECT * FROM coda_gps ORDER BY id ASC', []) as any[];
+}
+
+export function clearGpsCoda(ids: number[]) {
+  if (ids.length === 0) return;
+  const placeholders = ids.map(() => '?').join(',');
+  db.runSync(`DELETE FROM coda_gps WHERE id IN (${placeholders})`, ids);
+}
+
 // ─── Sessione ────────────────────────────────────────────────
 export function salvaSessione(utente: object) {
   db.runSync('INSERT OR REPLACE INTO sessione (id, utente) VALUES (1, ?)', [JSON.stringify(utente)]);
