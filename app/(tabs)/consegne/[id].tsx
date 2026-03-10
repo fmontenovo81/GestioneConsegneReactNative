@@ -6,7 +6,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ChevronLeft, FileText, Pen, Banknote, ClipboardList,
-  CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail, Send,
+  CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail, Send, Check, X,
 } from 'lucide-react-native';
 import { useConsegne, useConsegnaDetail, useUpdateConsegna, consegneKeys } from '../../../lib/api/consegne';
 import { useQueryClient } from '@tanstack/react-query';
@@ -46,6 +46,8 @@ export default function DettaglioConsegnaScreen() {
   const firmaDigitale = dettaglio?.firmaDigitale ?? consegna?.firmaDigitale;
   const { mutate: aggiorna, isPending } = useUpdateConsegna();
   const [inviandoEmail, setInviandoEmail] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [emailEditInput, setEmailEditInput] = useState('');
 
   if (!consegna) {
     return (
@@ -237,12 +239,43 @@ export default function DettaglioConsegnaScreen() {
             {/* Email */}
             {consegna.emailCliente ? (
               <View>
-                <View style={s.emailInfoRow}>
-                  <Mail size={15} color="#2563eb" />
-                  <Text style={s.emailInfoText}>
-                    Email: <Text style={s.emailInfoBold}>{consegna.emailCliente}</Text>
-                  </Text>
-                </View>
+                {editingEmail ? (
+                  <View style={s.emailEditRow}>
+                    <Mail size={15} color="#9ca3af" />
+                    <TextInput
+                      style={s.emailEditInput}
+                      value={emailEditInput}
+                      onChangeText={setEmailEditInput}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoFocus
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        const e = emailEditInput.trim();
+                        if (!e) return;
+                        aggiorna({ localId: consegna.localId, id: consegna.id, idTrasportatore: consegna.idTrasportatore, emailCliente: e });
+                        setEditingEmail(false);
+                      }}
+                      style={s.emailEditOk}
+                    >
+                      <Check size={16} color="#fff" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setEditingEmail(false)} style={s.emailEditCancel}>
+                      <X size={16} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View style={s.emailInfoRow}>
+                    <Mail size={15} color="#2563eb" />
+                    <Text style={s.emailInfoText}>
+                      Email: <Text style={s.emailInfoBold}>{consegna.emailCliente}</Text>
+                    </Text>
+                    <TouchableOpacity onPress={() => { setEmailEditInput(consegna.emailCliente ?? ''); setEditingEmail(true); }}>
+                      <Pen size={14} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+                )}
                 {consegna.statoConsegna === 'consegnata' && (
                   <TouchableOpacity
                     style={[s.reinviaBtn, inviandoEmail && s.btnDisabled]}
@@ -362,6 +395,10 @@ const s = StyleSheet.create({
   nextBtn:        { backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 17, alignItems: 'center' },
   nextBtnText:    { color: '#fff', fontWeight: '700', fontSize: 16 },
   btnDisabled:    { opacity: 0.5 },
-  reinviaBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, backgroundColor: '#2563eb', borderRadius: 12, paddingVertical: 12 },
-  reinviaBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  reinviaBtn:      { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, backgroundColor: '#2563eb', borderRadius: 12, paddingVertical: 12 },
+  reinviaBtnText:  { color: '#fff', fontSize: 14, fontWeight: '700' },
+  emailEditRow:    { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 2, borderColor: '#2563eb', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 4, backgroundColor: '#fff' },
+  emailEditInput:  { flex: 1, fontSize: 14, color: '#111827', paddingVertical: 8 },
+  emailEditOk:     { padding: 6, borderRadius: 8, backgroundColor: '#059669' },
+  emailEditCancel: { padding: 6, borderRadius: 8, backgroundColor: '#f3f4f6' },
 });
