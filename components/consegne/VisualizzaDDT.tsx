@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   ActivityIndicator, Alert, Modal, SafeAreaView, Platform,
 } from 'react-native';
+
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import WebView from 'react-native-webview';
@@ -29,9 +30,15 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
         .replace(/[\n\r\s]/g, '');
       await FileSystem.writeAsStringAsync(uri, b64, { encoding: 'base64' });
       setFileUri(uri);
-      setShowModal(true);
+      if (Platform.OS === 'ios') {
+        // iOS: apre inline nella Modal con WebView
+        setShowModal(true);
+      } else {
+        // Android: WebView non renderizza PDF — apre direttamente nel visualizzatore di sistema
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Apri DDT' });
+      }
     } catch (e: any) {
-      console.error('[DDT] Errore preparazione PDF:', e?.message ?? e);
+      console.error('[DDT] Errore apertura PDF:', e?.message ?? e);
       Alert.alert('Errore', 'Impossibile aprire il PDF');
     } finally {
       setLoading(false);
@@ -99,23 +106,12 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
             </View>
           </View>
           {fileUri && (
-            Platform.OS === 'ios' ? (
-              // iOS: WebView renderizza i PDF nativamente con file:// URI
-              <WebView
-                source={{ uri: fileUri }}
-                style={{ flex: 1 }}
-                originWhitelist={['file://*']}
-                allowFileAccess
-              />
-            ) : (
-              // Android: WebView non renderizza PDF da file:// — usa HTML con embed
-              <WebView
-                source={{ html: buildPdfHtml(ddtPdf!) }}
-                style={{ flex: 1 }}
-                originWhitelist={['*']}
-                javaScriptEnabled
-              />
-            )
+            <WebView
+              source={{ uri: fileUri }}
+              style={{ flex: 1 }}
+              originWhitelist={['file://*']}
+              allowFileAccess
+            />
           )}
         </SafeAreaView>
       </Modal>
@@ -123,18 +119,6 @@ export function VisualizzaDDT({ ddtPdf, firmaDigitale, noteDdt }: Props) {
   );
 }
 
-function buildPdfHtml(base64: string): string {
-  const b64 = base64.replace(/^data:[^;]+;base64,/, '').replace(/[\n\r\s]/g, '');
-  return `<!DOCTYPE html><html><head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#555; width:100%; height:100vh; display:flex; align-items:center; justify-content:center; }
-  embed { width:100%; height:100vh; }
-</style></head><body>
-<embed src="data:application/pdf;base64,${b64}" type="application/pdf" width="100%" height="100%"/>
-</body></html>`;
-}
 
 const s = StyleSheet.create({
   container:      { backgroundColor: '#fff', borderRadius: 16, padding: 16, borderWidth: 1, borderColor: '#e5e7eb' },

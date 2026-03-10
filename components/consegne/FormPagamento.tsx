@@ -103,15 +103,25 @@ export function FormPagamento({ consegnaServerId, onCompletato }: Props) {
             backgroundColor="rgba(0,0,0,0)"
             style={{ height: 200 }}
             descriptionText=""
-            clearText="Cancella"
-            confirmText="Conferma ricevuta"
           />
-          <TouchableOpacity style={s.cancellaBtn} onPress={() => sigRef.current?.clearSignature()}>
-            <RotateCcw size={16} color="#6b7280" />
-            <Text style={s.cancellaBtnText}>Cancella</Text>
-          </TouchableOpacity>
+          <View style={s.padBtns}>
+            <TouchableOpacity style={s.cancellaBtn} onPress={() => sigRef.current?.clearSignature()}>
+              <RotateCcw size={16} color="#6b7280" />
+              <Text style={s.cancellaBtnText}>Cancella</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.confermaBtn, isPending && s.confermaBtnDisabled]}
+              onPress={() => sigRef.current?.readSignature()}
+              disabled={isPending}
+            >
+              {isPending
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <Check size={16} color="#fff" />
+              }
+              <Text style={s.confermaBtnText}>Conferma ricevuta</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        {isPending && <ActivityIndicator color="#2563eb" style={{ marginTop: 12 }} />}
         <TouchableOpacity style={s.indietroBtn} onPress={() => setFase('form')}>
           <Text style={s.indietroBtnText}>← Torna al form</Text>
         </TouchableOpacity>
@@ -187,8 +197,12 @@ const s = StyleSheet.create({
   avantiBtnDisabled:  { opacity: 0.5 },
   avantiBtnText:      { color: '#fff', fontWeight: '700', fontSize: 16 },
   padWrapper:         { borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 16, overflow: 'hidden', backgroundColor: '#f8fafc' },
-  cancellaBtn:        { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 12, borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  padBtns:            { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  cancellaBtn:        { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 14 },
   cancellaBtnText:    { fontSize: 13, color: '#6b7280', fontWeight: '600' },
+  confermaBtn:        { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, padding: 14, backgroundColor: '#059669' },
+  confermaBtnDisabled:{ opacity: 0.6 },
+  confermaBtnText:    { fontSize: 14, color: '#fff', fontWeight: '700' },
   indietroBtn:        { alignItems: 'center', paddingVertical: 12 },
   indietroBtnText:    { color: '#6b7280', fontSize: 14 },
   okContainer:        { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 },
