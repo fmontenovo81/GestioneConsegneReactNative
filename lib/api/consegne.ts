@@ -98,7 +98,12 @@ export function useUpdateConsegna() {
       return null;
     },
     onSettled: (_d, _e, payload) => {
-      qc.invalidateQueries({ queryKey: consegneKeys.byTrasportatore(payload.idTrasportatore ?? 0) });
+      const idTrasportatore = payload.idTrasportatore ?? 0;
+      // Aggiorna subito l'UI da SQLite (già aggiornato in mutationFn), poi ricarica dal server
+      if (idTrasportatore > 0) {
+        qc.setQueryData(consegneKeys.byTrasportatore(idTrasportatore), getConsegne(idTrasportatore));
+      }
+      qc.invalidateQueries({ queryKey: consegneKeys.byTrasportatore(idTrasportatore) });
     },
   });
 }

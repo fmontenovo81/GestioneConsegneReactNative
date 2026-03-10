@@ -99,21 +99,25 @@ export function upsertConsegna(c: ConsegnaLocale): number {
     db.runSync(
       `UPDATE consegne SET id=?,idTrasportatore=?,clienteNome=?,emailCliente=?,
        indirizzoConsegna=?,dataProgrammata=?,noteTrasportatore=?,noteDdt=?,
+       firmaDigitale=?,ddtPdf=?,ddtFirmato=?,
        statoConsegna=?,statoSincronizzazione=?,aggiornatoIl=? WHERE localId=?`,
       [c.id ?? null, c.idTrasportatore, c.clienteNome, c.emailCliente ?? null,
        c.indirizzoConsegna, c.dataProgrammata, c.noteTrasportatore ?? null,
-       c.noteDdt ?? null, c.statoConsegna, c.statoSincronizzazione ? 1 : 0,
+       c.noteDdt ?? null, c.firmaDigitale ?? null, c.ddtPdf ?? null, c.ddtFirmato ?? null,
+       c.statoConsegna, c.statoSincronizzazione ? 1 : 0,
        c.aggiornatoIl, c.localId]
     );
     return c.localId;
   }
   const res = db.runSync(
     `INSERT INTO consegne (id,idTrasportatore,clienteNome,emailCliente,indirizzoConsegna,
-     dataProgrammata,noteTrasportatore,noteDdt,statoConsegna,statoSincronizzazione,aggiornatoIl)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+     dataProgrammata,noteTrasportatore,noteDdt,firmaDigitale,ddtPdf,ddtFirmato,
+     statoConsegna,statoSincronizzazione,aggiornatoIl)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [c.id ?? null, c.idTrasportatore, c.clienteNome, c.emailCliente ?? null,
      c.indirizzoConsegna, c.dataProgrammata, c.noteTrasportatore ?? null,
-     c.noteDdt ?? null, c.statoConsegna, c.statoSincronizzazione ? 1 : 0, c.aggiornatoIl]
+     c.noteDdt ?? null, c.firmaDigitale ?? null, c.ddtPdf ?? null, c.ddtFirmato ?? null,
+     c.statoConsegna, c.statoSincronizzazione ? 1 : 0, c.aggiornatoIl]
   );
   return res.lastInsertRowId;
 }
