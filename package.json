@@ -1,7 +1,7 @@
 {
   "name": "gestioneconsegnereactnative",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,10 +9,21 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-community/netinfo": "^12.0.1",
+    "@tanstack/react-query": "^5.90.21",
+    "date-fns": "^4.1.0",
     "expo": "~55.0.5",
+    "expo-camera": "~55.0.9",
+    "expo-file-system": "~55.0.10",
+    "expo-local-authentication": "~55.0.8",
+    "expo-router": "~55.0.4",
+    "expo-secure-store": "~55.0.8",
+    "expo-sqlite": "~55.0.10",
     "expo-status-bar": "~55.0.4",
+    "lucide-react-native": "^0.577.0",
     "react": "19.2.0",
-    "react-native": "0.83.2"
+    "react-native": "0.83.2",
+    "react-native-signature-canvas": "^5.0.2"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
