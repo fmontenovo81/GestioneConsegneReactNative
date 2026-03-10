@@ -27,9 +27,19 @@ async function fetchConsegne(idTrasportatore: number): Promise<ConsegnaLocale[]>
   for (const c of serverData) {
     const esistente = getConsegnaById(c.id);
     if (esistente) {
-      if (new Date(c.aggiornatoIl) >= new Date(esistente.aggiornatoIl)) {
-        upsertConsegna({ ...esistente, ...normalizza(c), localId: esistente.localId });
+      if (esistente.statoSincronizzazione) {
+        // Record sincronizzato: il server è la fonte di verità, aggiorna sempre.
+        // Preserva i campi binari (firmaDigitale, ddtPdf, ddtFirmato) perché la lista
+        // non li restituisce — vengono popolati solo dalla GET dettaglio.
+        upsertConsegna({
+          ...normalizza(c),
+          localId:       esistente.localId,
+          firmaDigitale: esistente.firmaDigitale,
+          ddtPdf:        esistente.ddtPdf,
+          ddtFirmato:    esistente.ddtFirmato,
+        });
       }
+      // Se statoSincronizzazione: false → modifiche offline in attesa, mantieni locale
     } else {
       upsertConsegna(normalizza(c));
     }
@@ -112,12 +122,20 @@ export function useUpdateConsegna() {
       const { localId, id, ...campi } = payload;
       const aggiornamento = { ...campi, aggiornatoIl: new Date().toISOString() };
       const esistente = localId ? getConsegnaById(localId) : (id ? getConsegnaById(id) : null);
+      const online = await isOnline();
+
       if (esistente) {
-        upsertConsegna({ ...esistente, ...aggiornamento, statoSincronizzazione: await isOnline() });
+        // Salva subito in locale come "in attesa" — verrà confermato dal server
+        upsertConsegna({ ...esistente, ...aggiornamento, statoSincronizzazione: false });
       }
-      if (await isOnline() && id) {
+
+      if (online && id) {
         const res = await apiFetch(`/consegne/${id}`, { method: 'PUT', body: JSON.stringify(aggiornamento) });
         if (!res.ok) throw new Error('Errore aggiornamento server');
+        // Server ha confermato → marca come sincronizzato
+        if (esistente) {
+          upsertConsegna({ ...esistente, ...aggiornamento, statoSincronizzazione: true });
+        }
         return res.json();
       }
       return null;
