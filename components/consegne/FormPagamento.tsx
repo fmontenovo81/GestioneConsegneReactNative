@@ -33,6 +33,7 @@ export function FormPagamento({ consegnaServerId, onCompletato }: Props) {
   const [metodo, setMetodo]     = useState<Metodo>('contanti');
   const [note, setNote]         = useState('');
   const [firma, setFirma]       = useState('');
+  const [padWidth, setPadWidth] = useState(0);
 
   const handleAvanti = () => {
     const val = parseFloat(importo.replace(',', '.'));
@@ -93,7 +94,8 @@ export function FormPagamento({ consegnaServerId, onCompletato }: Props) {
       <ScrollView contentContainerStyle={s.container}>
         <Text style={s.titolo}>Firma del trasportatore</Text>
         <Text style={s.sottotitolo}>Importo: <Text style={s.importoBold}>{formatEuro(parseFloat(importo.replace(',', '.')))}</Text></Text>
-        <View style={s.padWrapper}>
+        <View style={s.padWrapper} onLayout={e => setPadWidth(e.nativeEvent.layout.width)}>
+          {padWidth > 0 && (
           <SignatureCanvas
             ref={sigRef}
             onOK={handleFirmaOk}
@@ -104,6 +106,7 @@ export function FormPagamento({ consegnaServerId, onCompletato }: Props) {
             style={{ height: 200 }}
             descriptionText=""
           />
+          )}
           <View style={s.padBtns}>
             <TouchableOpacity style={s.cancellaBtn} onPress={() => sigRef.current?.clearSignature()}>
               <RotateCcw size={16} color="#6b7280" />

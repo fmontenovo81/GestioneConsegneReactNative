@@ -16,6 +16,7 @@ export function FirmaDigitale({ firmaEsistente, noteDdt: noteDdtIniziali, onSalv
   const sigRef = useRef<any>(null);
   const [note, setNote] = useState(noteDdtIniziali ?? '');
   const [firmaSalvata, setFirmaSalvata] = useState(!!firmaEsistente);
+  const [padWidth, setPadWidth] = useState(0);
 
   const handleOk = (firma: string) => {
     if (!firma || firma === 'data:image/png;base64,') {
@@ -67,7 +68,8 @@ export function FirmaDigitale({ firmaEsistente, noteDdt: noteDdtIniziali, onSalv
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={s.padWrapper}>
+        <View style={s.padWrapper} onLayout={e => setPadWidth(e.nativeEvent.layout.width)}>
+          {padWidth > 0 && (
           <SignatureCanvas
             ref={sigRef}
             onOK={handleOk}
@@ -78,6 +80,7 @@ export function FirmaDigitale({ firmaEsistente, noteDdt: noteDdtIniziali, onSalv
             style={s.pad}
             descriptionText=""
           />
+          )}
           <View style={s.padBtns}>
             <TouchableOpacity style={s.cancellaBtn} onPress={handleCancella}>
               <RotateCcw size={16} color="#6b7280" />
