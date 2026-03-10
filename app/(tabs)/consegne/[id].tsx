@@ -8,7 +8,7 @@ import {
   ChevronLeft, FileText, Pen, Banknote, ClipboardList,
   CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail,
 } from 'lucide-react-native';
-import { useConsegne, useUpdateConsegna } from '../../../lib/api/consegne';
+import { useConsegne, useConsegnaDetail, useUpdateConsegna } from '../../../lib/api/consegne';
 import { useAuth } from '../../../hooks/useAuth';
 import { getConsegnaById } from '../../../lib/db/sqlite';
 import { VisualizzaDDT } from '../../../components/consegne/VisualizzaDDT';
@@ -36,6 +36,11 @@ export default function DettaglioConsegnaScreen() {
   const { data: consegne = [] } = useConsegne(idTrasportatore ?? 0);
   const consegna = consegne.find(c => String(c.id) === id || String(c.localId) === id)
     ?? getConsegnaById(Number(id));
+  const serverId = consegna?.id;
+  const { data: dettaglio } = useConsegnaDetail(serverId);
+  // Merge: i campi binari vengono dalla GET dettaglio (esclusi dalla lista per payload)
+  const ddtPdf        = dettaglio?.ddtPdf        ?? consegna?.ddtPdf;
+  const firmaDigitale = dettaglio?.firmaDigitale ?? consegna?.firmaDigitale;
   const { mutate: aggiorna, isPending } = useUpdateConsegna();
 
   if (!consegna) {
@@ -61,7 +66,7 @@ export default function DettaglioConsegnaScreen() {
   };
 
   const handleSegnaConsegnata = () => {
-    if (!consegna.firmaDigitale) {
+    if (!firmaDigitale) {
       Alert.alert(
         'Firma mancante',
         'Il DDT deve essere firmato prima di confermare la consegna.',
@@ -146,8 +151,8 @@ export default function DettaglioConsegnaScreen() {
               </TouchableOpacity>
             )}
             <VisualizzaDDT
-              ddtPdf={consegna.ddtPdf}
-              firmaDigitale={consegna.firmaDigitale}
+              ddtPdf={ddtPdf}
+              firmaDigitale={firmaDigitale}
               noteDdt={consegna.noteDdt}
             />
             <PagamentiConsegna consegnaServerId={consegna.id} />
@@ -157,7 +162,7 @@ export default function DettaglioConsegnaScreen() {
         {/* ── Tab Firma ── */}
         {tab === 'firma' && (
           <FirmaDigitale
-            firmaEsistente={consegna.firmaDigitale}
+            firmaEsistente={firmaDigitale}
             noteDdt={consegna.noteDdt}
             onSalvata={handleSalvaFirma}
           />
@@ -184,15 +189,15 @@ export default function DettaglioConsegnaScreen() {
             </View>
 
             {/* Stato firma */}
-            <View style={[s.firmaRow, consegna.firmaDigitale ? s.firmaOk : s.firmaNok]}>
-              {consegna.firmaDigitale
+            <View style={[s.firmaRow, firmaDigitale ? s.firmaOk : s.firmaNok]}>
+              {firmaDigitale
                 ? <CheckCircle2 size={18} color="#16a34a" />
                 : <AlertTriangle size={18} color="#d97706" />
               }
-              <Text style={[s.firmaText, { color: consegna.firmaDigitale ? '#166534' : '#92400e' }]}>
-                {consegna.firmaDigitale ? 'DDT firmato' : 'DDT non ancora firmato'}
+              <Text style={[s.firmaText, { color: firmaDigitale ? '#166534' : '#92400e' }]}>
+                {firmaDigitale ? 'DDT firmato' : 'DDT non ancora firmato'}
               </Text>
-              {!consegna.firmaDigitale && (
+              {!firmaDigitale && (
                 <TouchableOpacity onPress={() => setTab('firma')}>
                   <Text style={s.vaiFirma}>Vai alla firma →</Text>
                 </TouchableOpacity>

@@ -80,6 +80,31 @@ export function useConsegne(idTrasportatore: number) {
   });
 }
 
+export function useConsegnaDetail(id: number | undefined) {
+  return useQuery({
+    queryKey: consegneKeys.detail(id ?? 0),
+    queryFn: async () => {
+      if (!id) return null;
+      const res = await apiFetch(`/consegne/${id}`);
+      if (!res.ok) throw new Error('Errore fetch dettaglio');
+      const data = await res.json();
+      // Salva i campi binari in SQLite per accesso offline
+      const esistente = getConsegnaById(id);
+      if (esistente?.localId) {
+        upsertConsegna({
+          ...esistente,
+          ddtPdf:        data.ddtPdf        ?? undefined,
+          firmaDigitale: data.firmaDigitale ?? undefined,
+          ddtFirmato:    data.ddtFirmato    ?? undefined,
+        });
+      }
+      return data as { ddtPdf?: string; firmaDigitale?: string; ddtFirmato?: string };
+    },
+    enabled: !!id && id > 0,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function useUpdateConsegna() {
   const qc = useQueryClient();
   return useMutation({
