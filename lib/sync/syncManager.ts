@@ -1,5 +1,8 @@
 import { apiFetch } from '../auth/apiClient';
-import { getConsegneDaSincronizzare, getPagamentiDaSincronizzare, getGpsCoda, clearGpsCoda } from '../db/sqlite';
+import {
+  getConsegneDaSincronizzare, getPagamentiDaSincronizzare,
+  getGpsCoda, clearGpsCoda, upsertConsegna,
+} from '../db/sqlite';
 
 export async function runSync(): Promise<void> {
   await sincronizzaConsegne();
@@ -10,10 +13,21 @@ export async function runSync(): Promise<void> {
 async function sincronizzaConsegne() {
   const pendenti = getConsegneDaSincronizzare();
   if (pendenti.length === 0) return;
-  await apiFetch('/consegne/sync/batch', {
+
+  // Escludi campi binari dal payload batch — troppo grandi e gestiti via detail endpoint
+  const payload = pendenti.map(({ firmaDigitale, ddtPdf, ddtFirmato, ...rest }) => rest);
+
+  const res = await apiFetch('/consegne/sync/batch', {
     method: 'POST',
-    body: JSON.stringify(pendenti),
+    body: JSON.stringify(payload),
   });
+
+  if (res.ok) {
+    // Marca come sincronizzate in SQLite
+    for (const c of pendenti) {
+      upsertConsegna({ ...c, statoSincronizzazione: true });
+    }
+  }
 }
 
 async function sincronizzaPagamenti() {
