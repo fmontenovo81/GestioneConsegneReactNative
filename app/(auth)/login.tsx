@@ -16,8 +16,8 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-    } catch (err: any) {
-      Alert.alert('Errore', err?.message ?? 'Email o password non validi');
+    } catch {
+      Alert.alert('Errore', 'Email o password non validi');
     } finally {
       setLoading(false);
     }

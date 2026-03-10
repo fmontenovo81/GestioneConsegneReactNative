@@ -4,8 +4,6 @@ import { AuthProvider, useAuthContext } from '../contexts/AuthContext';
 import { QueryProvider } from '../providers/QueryProvider';
 import { initDb } from '../lib/db/sqlite';
 
-initDb();
-
 function AuthGuard() {
   const { utente, isLoading } = useAuthContext();
   const segments = useSegments();
@@ -22,6 +20,10 @@ function AuthGuard() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    try { initDb(); } catch (e) { console.error('[DB] initDb error:', e); }
+  }, []);
+
   return (
     <QueryProvider>
       <AuthProvider>

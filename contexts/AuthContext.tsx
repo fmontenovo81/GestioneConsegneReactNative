@@ -45,23 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    let res: Response;
-    try {
-      res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-    } catch (err: any) {
-      // Errore di rete (server non raggiungibile, DNS, ecc.)
-      throw new Error(`Errore di rete: ${err?.message ?? 'impossibile raggiungere il server'}`);
-    }
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body?.messaggio ?? `Errore ${res.status}`);
-    }
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error('Credenziali non valide');
     const data = await res.json();
-    // Il server restituisce accessToken nel body; refreshToken solo via cookie (non usato in mobile)
     await setTokens(data.accessToken, data.refreshToken ?? '');
     setUtente(data.utente);
     salvaSessione(data.utente);
