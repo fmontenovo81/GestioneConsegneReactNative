@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  Alert, TextInput,
+  Alert, TextInput, ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ChevronLeft, FileText, Pen, Banknote, ClipboardList,
-  CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail,
+  CheckCircle2, AlertTriangle, Truck, PackageCheck, Mail, Send,
 } from 'lucide-react-native';
 import { useConsegne, useConsegnaDetail, useUpdateConsegna, consegneKeys } from '../../../lib/api/consegne';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,6 +45,7 @@ export default function DettaglioConsegnaScreen() {
   const ddtFirmato    = dettaglio?.ddtFirmato    ?? consegna?.ddtFirmato;
   const firmaDigitale = dettaglio?.firmaDigitale ?? consegna?.firmaDigitale;
   const { mutate: aggiorna, isPending } = useUpdateConsegna();
+  const [inviandoEmail, setInviandoEmail] = useState(false);
 
   if (!consegna) {
     return (
@@ -70,6 +71,24 @@ export default function DettaglioConsegnaScreen() {
         if (consegna.id) qc.invalidateQueries({ queryKey: consegneKeys.detail(consegna.id) });
       },
     });
+  };
+
+  const handleReinviaEmail = async () => {
+    if (!consegna.id) return;
+    setInviandoEmail(true);
+    try {
+      const { apiFetch } = await import('../../../lib/auth/apiClient');
+      const res = await apiFetch(`/consegne/${consegna.id}/invia-email`, { method: 'POST' });
+      if (res.ok) {
+        Alert.alert('Email inviata', `Documenti inviati a ${consegna.emailCliente}`);
+      } else {
+        Alert.alert('Errore', 'Impossibile inviare l\'email. Riprova.');
+      }
+    } catch {
+      Alert.alert('Errore', 'Impossibile inviare l\'email. Riprova.');
+    } finally {
+      setInviandoEmail(false);
+    }
   };
 
   const handleSegnaConsegnata = () => {
@@ -217,11 +236,28 @@ export default function DettaglioConsegnaScreen() {
 
             {/* Email */}
             {consegna.emailCliente ? (
-              <View style={s.emailInfoRow}>
-                <Mail size={15} color="#2563eb" />
-                <Text style={s.emailInfoText}>
-                  Documenti inviati a <Text style={s.emailInfoBold}>{consegna.emailCliente}</Text>
-                </Text>
+              <View>
+                <View style={s.emailInfoRow}>
+                  <Mail size={15} color="#2563eb" />
+                  <Text style={s.emailInfoText}>
+                    Email: <Text style={s.emailInfoBold}>{consegna.emailCliente}</Text>
+                  </Text>
+                </View>
+                {consegna.statoConsegna === 'consegnata' && (
+                  <TouchableOpacity
+                    style={[s.reinviaBtn, inviandoEmail && s.btnDisabled]}
+                    onPress={handleReinviaEmail}
+                    disabled={inviandoEmail}
+                  >
+                    {inviandoEmail
+                      ? <ActivityIndicator size="small" color="#fff" />
+                      : <Send size={15} color="#fff" />
+                    }
+                    <Text style={s.reinviaBtnText}>
+                      {inviandoEmail ? 'Invio in corso…' : 'Reinvia documenti'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ) : (
               <View>
@@ -326,4 +362,6 @@ const s = StyleSheet.create({
   nextBtn:        { backgroundColor: '#2563eb', borderRadius: 16, paddingVertical: 17, alignItems: 'center' },
   nextBtnText:    { color: '#fff', fontWeight: '700', fontSize: 16 },
   btnDisabled:    { opacity: 0.5 },
+  reinviaBtn:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, backgroundColor: '#2563eb', borderRadius: 12, paddingVertical: 12 },
+  reinviaBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 });
