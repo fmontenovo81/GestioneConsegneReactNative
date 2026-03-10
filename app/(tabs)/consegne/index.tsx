@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useAuth } from '../../../hooks/useAuth';
 import { useConsegne } from '../../../lib/api/consegne';
 import { ConsegnaCard } from '../../../components/consegne/ConsegnaCard';
+import { SyncIndicator } from '../../../components/sync/SyncIndicator';
 
 const oggi = format(new Date(), 'yyyy-MM-dd');
 
@@ -37,6 +38,7 @@ export default function ConsegneScreen() {
           <Text style={s.headerSub}>{oggiLabel}</Text>
           <Text style={s.headerTitle}>{primoNome ? `Ciao, ${primoNome}` : 'Le mie consegne'}</Text>
         </View>
+        <SyncIndicator />
         <TouchableOpacity onPress={logout} style={s.logoutBtn}>
           <Text style={s.logoutText}>Esci</Text>
         </TouchableOpacity>
