@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import {
   Plus, X, Pencil, Trash2, Package, Users, FileText,
-  Search, Download, ChevronDown, ChevronUp,
+  Search, Download, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
@@ -182,6 +182,31 @@ async function condividiDdtFirmato(id: number, clienteNome: string) {
   }
 }
 
+// ─── DateNavigator ────────────────────────────────────────────────────────────
+
+function DateNavigator({ date, onChange }: { date: Date; onChange: (d: Date) => void }) {
+  const oggi = format(new Date(), 'yyyy-MM-dd');
+  const isOggi = format(date, 'yyyy-MM-dd') === oggi;
+
+  const prev = () => { const d = new Date(date); d.setDate(d.getDate() - 1); onChange(d); };
+  const next = () => { const d = new Date(date); d.setDate(d.getDate() + 1); onChange(d); };
+
+  return (
+    <View style={s.dateNav}>
+      <TouchableOpacity style={s.dateArrow} onPress={prev}>
+        <ChevronLeft size={20} color="#374151" />
+      </TouchableOpacity>
+      <TouchableOpacity style={s.dateCenter} onPress={() => onChange(new Date())}>
+        <Text style={s.dateTxt}>{format(date, 'dd/MM/yyyy', { locale: it })}</Text>
+        {!isOggi && <Text style={s.dateTodayHint}>tocca per tornare a oggi</Text>}
+      </TouchableOpacity>
+      <TouchableOpacity style={s.dateArrow} onPress={next}>
+        <ChevronRight size={20} color="#374151" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // ─── Screen principale ────────────────────────────────────────────────────────
 
 type Tab = 'consegne' | 'utenti' | 'documenti';
@@ -231,6 +256,7 @@ function ConsegnePanel() {
 
   const [cerca, setCerca] = useState('');
   const [filtroStato, setFiltroStato] = useState('');
+  const [dataFiltro, setDataFiltro] = useState(new Date());
 
   const [modalCrea, setModalCrea] = useState(false);
   const vuotoCrea = { clienteNome: '', indirizzoConsegna: '', dataProgrammata: format(new Date(), 'yyyy-MM-dd'), idTrasportatore: '', noteTrasportatore: '' };
@@ -252,14 +278,16 @@ function ConsegnePanel() {
     fallita:       (consegne ?? []).filter(c => c.statoConsegna === 'fallita').length,
   }), [consegne]);
 
+  const dataFiltroStr = format(dataFiltro, 'yyyy-MM-dd');
   const consegneFiltrate = useMemo(() => (consegne ?? []).filter(c => {
+    if (format(new Date(c.dataProgrammata), 'yyyy-MM-dd') !== dataFiltroStr) return false;
     if (filtroStato && c.statoConsegna !== filtroStato) return false;
     if (cerca) {
       const q = cerca.toLowerCase();
       if (!c.clienteNome.toLowerCase().includes(q) && !c.indirizzoConsegna.toLowerCase().includes(q)) return false;
     }
     return true;
-  }), [consegne, filtroStato, cerca]);
+  }), [consegne, dataFiltroStr, filtroStato, cerca]);
 
   const soglia = new Date();
   soglia.setDate(soglia.getDate() - parseInt(giorniCleanup || '90', 10));
@@ -342,6 +370,9 @@ function ConsegnePanel() {
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* Filtro data */}
+      <DateNavigator date={dataFiltro} onChange={setDataFiltro} />
 
       {/* Search */}
       <View style={s.searchRow}>
@@ -702,19 +733,22 @@ function DocumentiPanel() {
   const { data: utenti } = useUtentiAdmin();
   const [cerca, setCerca] = useState('');
   const [filtroTrasp, setFiltroTrasp] = useState('');
+  const [dataFiltro, setDataFiltro] = useState(new Date());
   const [downloading, setDownloading] = useState<number | null>(null);
 
   const trasportatori = useMemo(() => (utenti ?? []).filter(u => u.ruolo === 'trasportatore'), [utenti]);
 
+  const dataFiltroStr = format(dataFiltro, 'yyyy-MM-dd');
   const conDocumenti = useMemo(() => (consegne ?? []).filter(c => {
     if (!c.hasDdtFirmato) return false;
+    if (format(new Date(c.dataProgrammata), 'yyyy-MM-dd') !== dataFiltroStr) return false;
     if (filtroTrasp && c.idTrasportatore?.toString() !== filtroTrasp) return false;
     if (cerca) {
       const q = cerca.toLowerCase();
       if (!c.clienteNome.toLowerCase().includes(q)) return false;
     }
     return true;
-  }), [consegne, filtroTrasp, cerca]);
+  }), [consegne, dataFiltroStr, filtroTrasp, cerca]);
 
   const handleDownload = async (c: ConsegnaAdmin) => {
     setDownloading(c.id);
@@ -726,6 +760,9 @@ function DocumentiPanel() {
 
   return (
     <View style={s.flex}>
+      {/* Filtro data */}
+      <DateNavigator date={dataFiltro} onChange={setDataFiltro} />
+
       {/* Search */}
       <View style={s.searchRow}>
         <Search size={16} color="#9ca3af" />
@@ -887,4 +924,10 @@ const s = StyleSheet.create({
   btnPrimary:    { backgroundColor: '#2563eb', borderRadius: 10, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
   btnDisabled:   { opacity: 0.55 },
   btnPrimaryTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  dateNav:       { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e2e8f0' },
+  dateArrow:     { paddingHorizontal: 16, paddingVertical: 12 },
+  dateCenter:    { flex: 1, alignItems: 'center', paddingVertical: 10 },
+  dateTxt:       { fontSize: 15, fontWeight: '700', color: '#111827' },
+  dateTodayHint: { fontSize: 11, color: '#2563eb', marginTop: 1 },
 });
