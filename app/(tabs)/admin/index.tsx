@@ -823,8 +823,8 @@ const s = StyleSheet.create({
   filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 8, gap: 6, flexDirection: 'row', alignItems: 'center' },
   filterChip:    { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
   filterChipOn:  { backgroundColor: '#dbeafe', borderColor: '#93c5fd' },
-  filterChipTxt: { fontSize: 13, color: '#374151', includeFontPadding: false },
-  filterChipTxtOn: { color: '#1d4ed8', fontWeight: '600', includeFontPadding: false },
+  filterChipTxt: { fontSize: 13, lineHeight: 20, color: '#374151' },
+  filterChipTxtOn: { color: '#1d4ed8', fontWeight: '600' },
 
   listContent: { padding: 12, paddingBottom: 90 },
   emptyText:   { textAlign: 'center', color: '#9ca3af', marginTop: 48, fontSize: 14 },
