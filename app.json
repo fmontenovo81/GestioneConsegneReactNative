@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "GestioneConsegneReactNative",
+    "name": "Gestione Consegne",
     "slug": "gestioneconsegne",
     "version": "1.0.0",
     "scheme": "gestioneconsegne",
@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "it.entersrl.gestioneconsegne"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,14 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "package": "it.entersrl.gestioneconsegne",
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET",
+        "NFC"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -34,7 +42,14 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Questa app usa la posizione GPS per tracciare le consegne.",
+          "locationWhenInUsePermission": "Questa app usa la posizione GPS per tracciare le consegne."
+        }
+      ]
     ]
   }
 }
