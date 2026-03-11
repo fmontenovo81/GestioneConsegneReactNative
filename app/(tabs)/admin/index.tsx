@@ -819,8 +819,8 @@ const s = StyleSheet.create({
   searchRow:   { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', margin: 10, marginBottom: 4, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#e2e8f0', gap: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#111827', padding: 0 },
 
-  filterScroll:       { maxHeight: 50, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 8, gap: 6, flexDirection: 'row' },
+  filterScroll:       { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 8, gap: 6, flexDirection: 'row', alignItems: 'center' },
   filterChip:    { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
   filterChipOn:  { backgroundColor: '#dbeafe', borderColor: '#93c5fd' },
   filterChipTxt: { fontSize: 13, color: '#374151' },
