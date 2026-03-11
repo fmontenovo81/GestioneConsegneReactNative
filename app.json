@@ -29,7 +29,9 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "INTERNET",
-        "NFC"
+        "NFC",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -50,6 +52,13 @@
           "locationWhenInUsePermission": "Questa app usa la posizione GPS per tracciare le consegne."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "98d78e0d-d5dd-49f2-81eb-8fafa4628145"
+      }
+    },
+    "owner": "entersrl"
   }
 }

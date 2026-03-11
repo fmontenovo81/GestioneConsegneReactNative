@@ -141,9 +141,50 @@ Da chiarire: i tablet sono solo Android o anche iPad? Questo determina quale pro
 ## Comandi
 
 ```bash
-npx expo start          # Dev server Expo
-npx expo start --tunnel # Con tunnel (per test su dispositivo fisico)
+npx expo start           # Dev server Expo (Expo Go)
+npx expo start --tunnel  # Con tunnel (per test su dispositivo fisico)
+eas build --platform android --profile preview     # APK per installazione diretta
+eas build --platform android --profile production  # AAB per Google Play
+eas update --branch production --message "desc"    # Aggiornamento OTA (solo JS, no nativi)
 ```
+
+---
+
+## Deploy
+
+### Account EAS
+- Owner: `entersrl`
+- Project ID: `98d78e0d-d5dd-49f2-81eb-8fafa4628145`
+- Package Android: `it.entersrl.gestioneconsegne`
+- Bundle iOS: `it.entersrl.gestioneconsegne`
+
+### Profili EAS (`eas.json`)
+| Profilo | Output | Uso |
+|---------|--------|-----|
+| `preview` | APK | Installazione diretta sui tablet (sideload) |
+| `production` | AAB | Google Play Store |
+| `development` | APK + dev client | Debug con expo-dev-client |
+
+### Procedura build APK (prima volta)
+```bash
+npm install -g eas-cli
+eas login                         # login account Expo/entersrl
+eas build --platform android --profile preview
+# EAS compila in cloud (~10-15 min) → link download APK
+# Installa sui tablet via USB o condividendo il link
+```
+
+### Aggiornamenti
+| Tipo modifica | Comando |
+|---|---|
+| Solo codice TypeScript/React | `eas update --branch production --message "..."` |
+| Nuovi plugin/permessi in `app.json` | `eas build --platform android --profile preview` |
+| Nuove dipendenze native | `eas build --platform android --profile preview` |
+
+### Permessi Android configurati
+- `ACCESS_FINE_LOCATION` + `ACCESS_COARSE_LOCATION` — GPS tracking
+- `INTERNET` — connessione API
+- `NFC` — predisposto per futuro pagamento NFC
 
 ---
 
