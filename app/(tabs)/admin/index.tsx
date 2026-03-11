@@ -860,7 +860,7 @@ const s = StyleSheet.create({
   filterScrollContent:{ paddingHorizontal: 8, gap: 6, flexDirection: 'row', alignItems: 'center', minHeight: 56 },
   filterChip:    { height: 36, paddingHorizontal: 14, borderRadius: 18, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
   filterChipOn:  { backgroundColor: '#dbeafe', borderColor: '#93c5fd' },
-  filterChipTxt: { fontSize: 13, color: '#374151' },
+  filterChipTxt: { fontSize: 13, color: '#374151', textAlign: 'center', textAlignVertical: 'center' },
   filterChipTxtOn: { color: '#1d4ed8', fontWeight: '600' },
 
   listContent: { padding: 12, paddingBottom: 90 },
