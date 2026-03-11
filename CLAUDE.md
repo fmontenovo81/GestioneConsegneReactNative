@@ -37,7 +37,7 @@ app/
 │   ├── consegne/
 │   │   ├── index.tsx              # Lista consegne, filtro data, toggle consegnate
 │   │   └── [id].tsx               # Dettaglio wizard: Documenti→Firma→Pagamento→Riepilogo
-│   └── admin/index.tsx            # Placeholder — da implementare
+│   └── admin/index.tsx            # Back Office: Consegne/Utenti/Documenti tab (solo admin)
 ├── _layout.tsx                    # RootLayout: initDb + AuthGuard + QueryProvider
 components/
 ├── consegne/
@@ -104,6 +104,19 @@ contexts/AuthContext.tsx
 - Se online + id server: PUT `/consegne/:id` → se OK marca `statoSincronizzazione: true`
 - Se la PUT fallisce: resta `statoSincronizzazione: false` → `runSync()` riproverà automaticamente
 
+### Back Office admin (`app/(tabs)/admin/index.tsx`)
+- Visibile solo agli admin; tab bar nascosta per i trasportatori (`tabBarStyle: { display: 'none' }`)
+- **Tab Consegne**: stats chip (cliccabili = filtro stato), DateNavigator (default oggi), ricerca, CRUD consegne, manutenzione DB (cleanup)
+- **Tab Utenti**: lista utenti, crea/modifica/elimina, toggle attivo, cambio password opzionale
+- **Tab Documenti**: DateNavigator + filtro trasportatore (chip orizzontali), share DDT firmato via `expo-sharing`
+- DateNavigator: frecce < > per giorno precedente/successivo; tap sulla data → reset a oggi
+- Download DDT: `expo-file-system/legacy` → scrive in `cacheDirectory`, poi `expo-sharing` per condividerlo
+
+### EAS Build — dipendenze native (aggiornate 2026-03-11)
+- `react-native-reanimated`: aggiornato a `^4.2.2` (3.x incompatibile con RN 0.81 — ShadowNode C++ deprecation)
+- `react-native-worklets: ^0.7.4` — peer dependency richiesta da reanimated 4, va installata separatamente
+- `.npmrc`: `legacy-peer-deps=true` — obbligatorio per EAS Build
+
 ---
 
 ## Funzionalità implementate
@@ -121,7 +134,7 @@ contexts/AuthContext.tsx
 | GPS tracking ogni 5 min | ✅ |
 | Bottone reinvia email (tab Riepilogo) | ✅ |
 | Modifica email cliente inline (tab Riepilogo) | ✅ |
-| Admin screen | ❌ placeholder |
+| Back Office admin (Consegne/Utenti/Documenti) | ✅ |
 | Pagamento NFC carta (Nexi SoftPOS / Stripe Terminal) | ❌ decisione pendente |
 
 ---
