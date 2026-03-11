@@ -17,7 +17,7 @@ export default function TabsLayout() {
       <Tabs screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#2563eb',
-        tabBarStyle: { borderTopColor: '#f1f5f9' },
+        tabBarStyle: isAdmin ? { borderTopColor: '#f1f5f9' } : { display: 'none' },
       }}>
         <Tabs.Screen
           name="consegne"
