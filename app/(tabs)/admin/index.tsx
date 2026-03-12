@@ -857,10 +857,10 @@ const s = StyleSheet.create({
   searchInput: { flex: 1, fontSize: 14, color: '#111827', padding: 0 },
 
   filterScroll:       { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 10, gap: 6, flexDirection: 'row' },
-  filterChip:    { paddingHorizontal: 14, paddingTop: 7, paddingBottom: 7, borderRadius: 18, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb' },
+  filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 8, gap: 6, flexDirection: 'row', alignItems: 'center' },
+  filterChip:    { height: 30, paddingHorizontal: 12, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
   filterChipOn:  { backgroundColor: '#dbeafe', borderColor: '#93c5fd' },
-  filterChipTxt: { fontSize: 13, color: '#374151' },
+  filterChipTxt: { fontSize: 12, color: '#374151' },
   filterChipTxtOn: { color: '#1d4ed8', fontWeight: '600' },
 
   listContent: { padding: 12, paddingBottom: 90 },
