@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Package, Settings } from 'lucide-react-native';
+import { Package, Settings, MapPin } from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useGps } from '../../hooks/useGps';
 
@@ -26,6 +26,15 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
           }}
         />
+        {isAdmin && (
+          <Tabs.Screen
+            name="mappa"
+            options={{
+              title: 'Mappa',
+              tabBarIcon: ({ color, size }) => <MapPin color={color} size={size} />,
+            }}
+          />
+        )}
         {isAdmin && (
           <Tabs.Screen
             name="admin"
