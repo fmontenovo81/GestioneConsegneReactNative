@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Package, Settings, MapPin } from 'lucide-react-native';
+import { Package, Map, LayoutDashboard } from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useGps } from '../../hooks/useGps';
 
@@ -31,7 +31,7 @@ export default function TabsLayout() {
             name="mappa"
             options={{
               title: 'Mappa',
-              tabBarIcon: ({ color, size }) => <MapPin color={color} size={size} />,
+              tabBarIcon: ({ color, size }) => <Map color={color} size={size} />,
             }}
           />
         )}
@@ -40,7 +40,7 @@ export default function TabsLayout() {
             name="admin"
             options={{
               title: 'Back Office',
-              tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
+              tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />,
             }}
           />
         )}
