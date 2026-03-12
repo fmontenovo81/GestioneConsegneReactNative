@@ -144,16 +144,30 @@ export function getPagamentiByConsegna(idConsegna: number): PagamentoLocale[] {
 
 export function insertPagamento(p: PagamentoLocale): number {
   const res = db.runSync(
-    `INSERT INTO pagamenti (id,idConsegna,importo,metodo,statoPagamento,note,statoSincronizzazione,aggiornatoIl)
-     VALUES (?,?,?,?,?,?,?,?)`,
+    `INSERT INTO pagamenti (id,idConsegna,importo,metodo,statoPagamento,note,firmaRicevuta,ricevutaPdf,statoSincronizzazione,aggiornatoIl)
+     VALUES (?,?,?,?,?,?,?,?,?,?)`,
     [p.id ?? null, p.idConsegna ?? null, p.importo, p.metodo, p.statoPagamento,
-     p.note ?? null, p.statoSincronizzazione ? 1 : 0, p.aggiornatoIl]
+     p.note ?? null, p.firmaRicevuta ?? null, p.ricevutaPdf ?? null,
+     p.statoSincronizzazione ? 1 : 0, p.aggiornatoIl]
   );
   return res.lastInsertRowId;
 }
 
 export function getPagamentiDaSincronizzare(): PagamentoLocale[] {
   return db.getAllSync('SELECT * FROM pagamenti WHERE statoSincronizzazione = 0', []).map(rowToPagamento);
+}
+
+export function markPagamentiSincronizzati(localIds: number[]) {
+  if (localIds.length === 0) return;
+  const placeholders = localIds.map(() => '?').join(',');
+  db.runSync(`UPDATE pagamenti SET statoSincronizzazione = 1 WHERE localId IN (${placeholders})`, localIds);
+}
+
+export function markPagamentoSincronizzato(localId: number, serverId: number) {
+  db.runSync(
+    'UPDATE pagamenti SET id = ?, statoSincronizzazione = 1 WHERE localId = ?',
+    [serverId, localId]
+  );
 }
 
 // ─── Coda GPS ────────────────────────────────────────────────

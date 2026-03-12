@@ -54,7 +54,28 @@ async function fetchConsegne(idTrasportatore: number): Promise<ConsegnaLocale[]>
     .filter(Boolean);
   if (daEliminare.length > 0) deleteConsegne(daEliminare);
 
+  // Pre-scarica PDF in background per consegne non ancora aperte
+  const senzaPdf = getConsegne(idTrasportatore).filter(c => c.id && !c.ddtPdf);
+  for (const c of senzaPdf) {
+    prefetchConsegnaBinari(c.id!).catch(() => {});
+  }
+
   return getConsegne(idTrasportatore);
+}
+
+async function prefetchConsegnaBinari(id: number): Promise<void> {
+  const res = await apiFetch(`/consegne/${id}`);
+  if (!res.ok) return;
+  const data = await res.json();
+  const esistente = getConsegnaById(id);
+  if (esistente?.localId) {
+    upsertConsegna({
+      ...esistente,
+      ddtPdf:        data.ddtPdf        ?? esistente.ddtPdf,
+      firmaDigitale: data.firmaDigitale ?? esistente.firmaDigitale,
+      ddtFirmato:    data.ddtFirmato    ?? esistente.ddtFirmato,
+    });
+  }
 }
 
 function normalizza(c: any): ConsegnaLocale {

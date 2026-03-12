@@ -19,6 +19,7 @@ export function useGps(idTrasportatore: number | null) {
 
   useEffect(() => {
     if (!idTrasportatore) return;
+    const id = idTrasportatore; // narrowing per TypeScript (closure non restringe il tipo)
 
     attivoRef.current = true;
 
@@ -60,9 +61,9 @@ export function useGps(idTrasportatore: number | null) {
               accuratezza: accuracy ?? null,
             }),
           });
-          if (!res.ok) insertGps(idTrasportatore, latitude, longitude, accuracy ?? undefined);
+          if (!res.ok) insertGps(id, latitude, longitude, accuracy ?? undefined);
         } else {
-          insertGps(idTrasportatore, latitude, longitude, accuracy ?? undefined);
+          insertGps(id, latitude, longitude, accuracy ?? undefined);
         }
 
         if (attivoRef.current) setStatus('ok');

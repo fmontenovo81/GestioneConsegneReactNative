@@ -47,27 +47,37 @@ export function useCreaPagamento() {
       note?: string;
       firmaRicevuta?: string;
     }) => {
-      const record: PagamentoLocale = {
+      const base: PagamentoLocale = {
         ...payload,
         statoPagamento: 'completato',
         statoSincronizzazione: false,
         aggiornatoIl: new Date().toISOString(),
       };
-      // Salva in SQLite
-      const localId = insertPagamento(record);
 
-      // Se online, invia al server
+      // Server-first: prova a inviare al server prima di scrivere in SQLite.
+      // Inserendo direttamente con statoSincronizzazione: true si evita la race
+      // condition con runSync() che altrimenti ri-invierebbe il pagamento via batch.
       try {
         const res = await apiFetch('/pagamenti', {
           method: 'POST',
-          body: JSON.stringify(record),
+          body: JSON.stringify(base),
         });
         if (res.ok) {
           const serverRecord = await res.json();
-          return { ...record, localId, id: serverRecord.id, statoSincronizzazione: true };
+          const synced: PagamentoLocale = {
+            ...base,
+            id:            serverRecord.id,
+            ricevutaPdf:   serverRecord.ricevutaPdf ?? undefined,
+            statoSincronizzazione: true,
+          };
+          const localId = insertPagamento(synced);
+          return { ...synced, localId };
         }
       } catch {}
-      return { ...record, localId };
+
+      // Offline path: salva come pending in SQLite
+      const localId = insertPagamento(base);
+      return { ...base, localId };
     },
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: pagamentiKeys.byConsegna(variables.idConsegna) });
