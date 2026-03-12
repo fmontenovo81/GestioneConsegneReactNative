@@ -47,7 +47,8 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
 
   if (res.status === 401) {
     const body = await res.clone().json().catch(() => ({}));
-    if (body.code === 'TOKEN_SCADUTO' || body.code === 'NON_AUTENTICATO') {
+    const errorCode = body.codice ?? body.code;
+    if (errorCode === 'TOKEN_SCADUTO' || errorCode === 'NON_AUTENTICATO') {
       if (isRefreshing) {
         const newToken = await new Promise<string | null>(resolve => refreshQueue.push(resolve));
         if (newToken) {
