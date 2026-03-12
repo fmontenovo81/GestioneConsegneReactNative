@@ -777,20 +777,22 @@ function DocumentiPanel() {
       </View>
 
       {/* Filtro trasportatore */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.filterScroll} contentContainerStyle={s.filterScrollContent}>
-        <TouchableOpacity style={[s.filterChip, filtroTrasp === '' && s.filterChipOn]} onPress={() => setFiltroTrasp('')}>
-          <Text style={[s.filterChipTxt, filtroTrasp === '' && s.filterChipTxtOn]}>Tutti</Text>
-        </TouchableOpacity>
-        {trasportatori.map(t => (
-          <TouchableOpacity
-            key={t.id}
-            style={[s.filterChip, filtroTrasp === t.id.toString() && s.filterChipOn]}
-            onPress={() => setFiltroTrasp(t.id.toString())}
-          >
-            <Text style={[s.filterChipTxt, filtroTrasp === t.id.toString() && s.filterChipTxtOn]}>{t.nome}</Text>
+      <View style={s.filterWrap}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filterScrollContent}>
+          <TouchableOpacity style={[s.filterChip, filtroTrasp === '' && s.filterChipOn]} onPress={() => setFiltroTrasp('')}>
+            <Text style={[s.filterChipTxt, filtroTrasp === '' && s.filterChipTxtOn]}>Tutti</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+          {trasportatori.map(t => (
+            <TouchableOpacity
+              key={t.id}
+              style={[s.filterChip, filtroTrasp === t.id.toString() && s.filterChipOn]}
+              onPress={() => setFiltroTrasp(t.id.toString())}
+            >
+              <Text style={[s.filterChipTxt, filtroTrasp === t.id.toString() && s.filterChipTxtOn]}>{t.nome}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       <FlatList
         data={conDocumenti}
@@ -856,8 +858,8 @@ const s = StyleSheet.create({
   searchRow:   { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', margin: 10, marginBottom: 4, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#e2e8f0', gap: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#111827', padding: 0 },
 
-  filterScroll:       { height: 46, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  filterScrollContent:{ paddingHorizontal: 8, paddingVertical: 8, gap: 6, flexDirection: 'row', alignItems: 'center' },
+  filterWrap:         { height: 46, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f1f5f9', justifyContent: 'center', overflow: 'hidden' },
+  filterScrollContent:{ paddingHorizontal: 8, gap: 6, flexDirection: 'row', alignItems: 'center', height: 46 },
   filterChip:    { height: 30, paddingHorizontal: 12, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
   filterChipOn:  { backgroundColor: '#dbeafe', borderColor: '#93c5fd' },
   filterChipTxt: { fontSize: 12, color: '#374151' },
