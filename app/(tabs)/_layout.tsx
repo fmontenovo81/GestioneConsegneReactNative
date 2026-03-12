@@ -28,7 +28,7 @@ export default function TabsLayout() {
         />
         {isAdmin && (
           <Tabs.Screen
-            name="mappa"
+            name="mappa/index"
             options={{
               title: 'Mappa',
               tabBarIcon: ({ color, size }) => <Compass color={color} size={size} />,
@@ -37,7 +37,7 @@ export default function TabsLayout() {
         )}
         {isAdmin && (
           <Tabs.Screen
-            name="admin"
+            name="admin/index"
             options={{
               title: 'Back Office',
               tabBarIcon: ({ color, size }) => <Gauge color={color} size={size} />,
