@@ -89,15 +89,19 @@ function buildHtml(posizioni: Posizione[]): string {
 
   return `<!DOCTYPE html><html><head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>*{margin:0;padding:0;box-sizing:border-box}html,body,#map{width:100%;height:100%}
-  @keyframes ping{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.4);opacity:.3}}</style>
+  <style>
+    html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;}
+    #map{position:absolute;top:0;bottom:0;left:0;right:0;}
+    @keyframes ping{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.4);opacity:.3}}
+  </style>
   </head><body><div id="map"></div><script>
   var map = L.map('map',{zoomControl:true}).setView([${centerLat},${centerLon}],${zoom});
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
   ${markersJs}
+  setTimeout(function(){ map.invalidateSize(); }, 300);
   </script></body></html>`;
 }
 
@@ -154,12 +158,13 @@ export default function MappaScreen() {
         ) : html ? (
           <WebView
             ref={webViewRef}
-            source={{ html }}
+            source={{ html, baseUrl: 'https://unpkg.com' }}
             style={s.webView}
             onMessage={handleMessage}
             javaScriptEnabled
             domStorageEnabled
             originWhitelist={['*']}
+            mixedContentMode="always"
           />
         ) : (
           <View style={s.center}>
