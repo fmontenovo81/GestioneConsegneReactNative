@@ -4,6 +4,7 @@ import {
   StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function LoginScreen() {
@@ -12,6 +13,7 @@ export default function LoginScreen() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
+  const [showPwd, setShowPwd]   = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) return;
@@ -42,14 +44,19 @@ export default function LoginScreen() {
           autoCapitalize="none"
           autoCorrect={false}
         />
-        <TextInput
-          style={s.input}
-          placeholder="Password"
-          placeholderTextColor="#9ca3af"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={s.pwdWrap}>
+          <TextInput
+            style={s.pwdInput}
+            placeholder="Password"
+            placeholderTextColor="#9ca3af"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPwd}
+          />
+          <TouchableOpacity onPress={() => setShowPwd(v => !v)} style={s.pwdEye}>
+            {showPwd ? <EyeOff size={20} color="#9ca3af" /> : <Eye size={20} color="#9ca3af" />}
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity
           style={[s.btn, (!email || !password || loading) && s.btnDisabled]}
           onPress={handleLogin}
@@ -71,6 +78,9 @@ const s = StyleSheet.create({
   title:      { fontSize: 28, fontWeight: '800', color: '#111827', textAlign: 'center', marginBottom: 6 },
   subtitle:   { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 28 },
   input:      { borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#111827', marginBottom: 14 },
+  pwdWrap:    { flexDirection: 'row', alignItems: 'center', borderWidth: 2, borderColor: '#e5e7eb', borderRadius: 14, marginBottom: 14 },
+  pwdInput:   { flex: 1, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: '#111827' },
+  pwdEye:     { paddingHorizontal: 14 },
   btn:        { backgroundColor: '#2563eb', borderRadius: 14, paddingVertical: 16, alignItems: 'center', marginTop: 4 },
   btnDisabled:{ opacity: 0.5 },
   btnText:    { color: '#fff', fontWeight: '700', fontSize: 16 },

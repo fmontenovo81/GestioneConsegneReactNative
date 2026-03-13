@@ -10,6 +10,7 @@ import { it } from 'date-fns/locale';
 import {
   Plus, X, Pencil, Trash2, Package, Users, FileText,
   Search, Download, ChevronDown, ChevronUp, ChevronLeft, ChevronRight,
+  Eye, EyeOff,
 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
@@ -567,9 +568,11 @@ function UtentiPanel() {
   const vuotoCrea: { nome: string; email: string; password: string; ruolo: 'trasportatore' | 'admin' } =
     { nome: '', email: '', password: '', ruolo: 'trasportatore' };
   const [formCrea, setFormCrea] = useState(vuotoCrea);
+  const [showPwdCrea, setShowPwdCrea] = useState(false);
 
   const [editUtente, setEditUtente] = useState<UtenteAdmin | null>(null);
   const [formEdit, setFormEdit] = useState({ nome: '', email: '', ruolo: 'trasportatore' as 'trasportatore' | 'admin', attivo: true, password: '' });
+  const [showPwdEdit, setShowPwdEdit] = useState(false);
 
   const openEdit = (u: UtenteAdmin) => {
     setEditUtente(u);
@@ -657,7 +660,12 @@ function UtentiPanel() {
             <Text style={s.fieldLbl}>Email *</Text>
             <TextInput style={s.field} value={formCrea.email} onChangeText={v => setFormCrea(f => ({ ...f, email: v }))} placeholder="email@esempio.it" placeholderTextColor="#9ca3af" keyboardType="email-address" autoCapitalize="none" />
             <Text style={s.fieldLbl}>Password *</Text>
-            <TextInput style={s.field} value={formCrea.password} onChangeText={v => setFormCrea(f => ({ ...f, password: v }))} placeholder="Password" placeholderTextColor="#9ca3af" secureTextEntry />
+            <View style={s.pwdWrap}>
+              <TextInput style={s.pwdInput} value={formCrea.password} onChangeText={v => setFormCrea(f => ({ ...f, password: v }))} placeholder="Password" placeholderTextColor="#9ca3af" secureTextEntry={!showPwdCrea} />
+              <TouchableOpacity onPress={() => setShowPwdCrea(v => !v)} style={s.pwdEye}>
+                {showPwdCrea ? <EyeOff size={18} color="#9ca3af" /> : <Eye size={18} color="#9ca3af" />}
+              </TouchableOpacity>
+            </View>
             <Text style={s.fieldLbl}>Ruolo</Text>
             <View style={s.pickerRow}>
               {(['trasportatore', 'admin'] as const).map(r => (
@@ -692,7 +700,12 @@ function UtentiPanel() {
             <Text style={s.fieldLbl}>Email *</Text>
             <TextInput style={s.field} value={formEdit.email} onChangeText={v => setFormEdit(f => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" placeholderTextColor="#9ca3af" />
             <Text style={s.fieldLbl}>Nuova password (lascia vuoto per non cambiare)</Text>
-            <TextInput style={s.field} value={formEdit.password} onChangeText={v => setFormEdit(f => ({ ...f, password: v }))} placeholder="••••••••" placeholderTextColor="#9ca3af" secureTextEntry />
+            <View style={s.pwdWrap}>
+              <TextInput style={s.pwdInput} value={formEdit.password} onChangeText={v => setFormEdit(f => ({ ...f, password: v }))} placeholder="••••••••" placeholderTextColor="#9ca3af" secureTextEntry={!showPwdEdit} />
+              <TouchableOpacity onPress={() => setShowPwdEdit(v => !v)} style={s.pwdEye}>
+                {showPwdEdit ? <EyeOff size={18} color="#9ca3af" /> : <Eye size={18} color="#9ca3af" />}
+              </TouchableOpacity>
+            </View>
             <Text style={s.fieldLbl}>Ruolo</Text>
             <View style={s.pickerRow}>
               {(['trasportatore', 'admin'] as const).map(r => (
@@ -913,6 +926,9 @@ const s = StyleSheet.create({
 
   fieldLbl:      { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 4, marginTop: 14 },
   field:         { borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827', backgroundColor: '#fff' },
+  pwdWrap:       { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, backgroundColor: '#fff' },
+  pwdInput:      { flex: 1, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' },
+  pwdEye:        { paddingHorizontal: 12 },
   fieldMultiline:{ height: 80, textAlignVertical: 'top' },
 
   pickerRow:         { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
