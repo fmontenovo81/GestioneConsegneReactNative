@@ -1,5 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
-import { API_BASE } from '../../constants/api';
+import { getApiBase } from '../config';
 
 const ACCESS_TOKEN_KEY  = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -23,7 +23,7 @@ async function refreshTokens(): Promise<string | null> {
   const refresh = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
   if (!refresh) return null;
   try {
-    const res = await fetch(`${API_BASE}/auth/refresh`, {
+    const res = await fetch(`${getApiBase()}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken: refresh }),
@@ -43,7 +43,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  let res = await fetch(`${getApiBase()}${path}`, { ...options, headers });
 
   if (res.status === 401) {
     const body = await res.clone().json().catch(() => ({}));
@@ -53,7 +53,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
         const newToken = await new Promise<string | null>(resolve => refreshQueue.push(resolve));
         if (newToken) {
           headers['Authorization'] = `Bearer ${newToken}`;
-          return fetch(`${API_BASE}${path}`, { ...options, headers });
+          return fetch(`${getApiBase()}${path}`, { ...options, headers });
         }
         throw new Error('NON_AUTENTICATO');
       }
@@ -64,7 +64,7 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
       refreshQueue = [];
       if (newToken) {
         headers['Authorization'] = `Bearer ${newToken}`;
-        return fetch(`${API_BASE}${path}`, { ...options, headers });
+        return fetch(`${getApiBase()}${path}`, { ...options, headers });
       }
       throw new Error('NON_AUTENTICATO');
     }
