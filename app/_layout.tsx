@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { AuthProvider, useAuthContext } from '../contexts/AuthContext';
 import { QueryProvider } from '../providers/QueryProvider';
@@ -21,10 +22,19 @@ function AuthGuard() {
 }
 
 export default function RootLayout() {
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
-    loadConfig().catch(() => {});
-    try { initDb(); } catch (e) { console.error('[DB] initDb error:', e); }
+    (async () => {
+      await loadConfig().catch(() => {});
+      try { initDb(); } catch (e) { console.error('[DB] initDb error:', e); }
+      setReady(true);
+    })();
   }, []);
+
+  if (!ready) {
+    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#2563eb" /></View>;
+  }
 
   return (
     <QueryProvider>
